@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Genetik Algoritmalar kullanan İstemci Taraflı (Client-Side) Evrimsel Sanat Motoru.">
+    <meta name="author" content="Batuhan Bayatlı">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyGen AI | Evrimsel Sanat Motoru</title>
+    <style>
+        :root { --primary: #3b82f6; --bg: #0f172a; --panel: #1e293b; --text: #e2e8f0; --accent: #8b5cf6; }
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Segoe UI', Inter, -apple-system, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            margin: 0; padding: 40px 20px; min-height: 100vh;
+        }
+        h1 { 
+            margin: 0; font-weight: 800; letter-spacing: -1px; 
+            background: linear-gradient(to right, var(--primary), var(--accent)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            font-size: 2.5rem; text-transform: uppercase;
+        }
+        p { color: #94a3b8; margin-bottom: 30px; font-size: 1.1rem; text-align: center; }
+        
+        .main-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+            background: var(--panel); padding: 30px; border-radius: 20px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
+        }
+        canvas { 
+            border-radius: 12px; background: #000; width: 300px; height: 300px; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8); image-rendering: pixelated;
+        }
+        .label { display: block; margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700; text-align: center; }
+        
+        .controls {
+            margin-top: 30px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
+            width: 100%; max-width: 700px; background: var(--panel); padding: 25px;
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .full-width { grid-column: 1 / -1; }
+        label { font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 8px; display: block; }
+        
+        button, select, .upload-btn {
+            width: 100%; padding: 12px; background: #334155; color: white; border: 1px solid #475569;
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; text-align: center; font-family: inherit; font-size: 0.9rem;
+        }
+        button:hover, .upload-btn:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+        input[type="file"] { display: none; }
+
+        .footer { margin-top: 50px; font-size: 0.9rem; color: #64748b; text-align: center; }
+        .footer a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; transition: 0.2s; }
+        .footer a:hover { border-bottom-color: var(--primary); }
+        
+        .stats-bar {
+            grid-column: 1 / -1; display: flex; justify-content: space-between;
+            padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 0.9rem; color: #cbd5e1;
+        }
+        
+        
+        @media (max-width: 700px) { 
+            .main-container { grid-template-columns: 1fr; } 
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>GeoMimic AI</h1>
+    <p>Genetik Algoritmalarla Görsel Rekonstrüksiyon Motoru</p>
+
+    <div class="main-container">
+        <div>
+            <span class="label">Kaynak Görüntü (Hedef)</span>
+            <canvas id="targetCanvas" width="300" height="300"></canvas>
+        </div>
+        <div>
+            <span class="label">Yapay Zeka Çıktısı (Evrim)</span>
+            <canvas id="aiCanvas" width="300" height="300"></canvas>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="full-width">
+            <label class="upload-btn">
+                📂 Kaynak Fotoğraf Yükle
+                <input type="file" id="uploadInput" accept="image/*">
+            </label>
+        </div>
+        
+        <div class="stats-bar">
+            <span id="genStat">Nesil: 0</span>
+            <span id="errorStat">Hata Payı: ---</span>
+        </div>
+
+        <div>
+            <label>Çizim Tarzı (Fırça)</label>
+            <select id="styleSelect" onchange="resetDNA()">
+                <option value="triangle">Poligonlar (Üçgen)</option>
+                <option value="circle">Noktacılık (Daire)</option>
+                <option value="rect">Kübizm (Kare)</option>
+                <option value="line">Eskiz (Çizgiler)</option>
+            </select>
+        </div>
+        <div>
+            <label>Karmaşıklık (Şekil Sayısı)</label>
+            <select id="countSelect" onchange="resetDNA()">
+                <option value="50">Düşük (Soyut Sanat)</option>
+                <option value="150" selected>Orta (Dengeli)</option>
+                <option value="400">Yüksek (Detaylı)</option>
+            </select>
+        </div>
+        <div class="full-width">
+            <label>Evrim Hızı (Turbo Mod)</label>
+            <input type="range" id="speedSlider" min="1" max="200" value="20">
+            <small style="color:#64748b; font-size: 0.75rem; display:block; text-align:center; margin-top:5px;">Sağa çektikçe işlemci kullanımı artar.</small>
+        </div>
+        <button id="startBtn" onclick="togglePause()" disabled>Evrimi Başlat</button>
+        <button onclick="downloadArt()">Sonucu İndir (PNG)</button>
+    </div>
+
+    <div class="footer">
+        Geliştirici: <a href="https://linkedin.com/in/batuhanbayatlı" target="_blank">Batuhan Bayatlı</a> | 
+        <a href="https://github.com/batuhanbayatli" target="_blank">GitHub Profili</a>
+    </div>
+
+    <script>
+        
+        let POLYGON_COUNT = 150;
+        let ART_STYLE = 'triangle'; // triangle, circle, rect, line
+        
+        
+        let targetCtx, aiCtx;
+        let width = 300, height = 300;
+        let targetData; 
+        let currentDNA = [];
+        let isRunning = false;
+        let generation = 0;
+        let bestError = Infinity;
+        let animationId;
+
+        
+        window.onload = () => {
+            const targetCanvas = document.getElementById('targetCanvas');
+            const aiCanvas = document.getElementById('aiCanvas');
+            targetCtx = targetCanvas.getContext('2d', { willReadFrequently: true });
+            aiCtx = aiCanvas.getContext('2d', { willReadFrequently: true });
+
+            document.getElementById('uploadInput').addEventListener('change', handleUpload);
+        };
+
+        
+        function handleUpload(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    
+                    targetCtx.drawImage(img, 0, 0, width, height);
+                    
+                    targetData = targetCtx.getImageData(0, 0, width, height).data;
+                    resetDNA();
+                    document.getElementById('startBtn').disabled = false;
+                }
+                img.src = event.target.result;
+            }
+            if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+        }
+
+        
+        function resetDNA() {
+            isRunning = false;
+            const btn = document.getElementById('startBtn');
+            btn.innerText = "Evrimi Başlat";
+            btn.style.background = "#334155";
+            
+            POLYGON_COUNT = parseInt(document.getElementById('countSelect').value);
+            ART_STYLE = document.getElementById('styleSelect').value;
+
+            currentDNA = [];
+            
+            for (let i = 0; i < POLYGON_COUNT; i++) {
+                currentDNA.push(createRandomShape());
+            }
+            bestError = Infinity;
+            generation = 0;
+            
+            
+            aiCtx.fillStyle = "#000";
+            aiCtx.fillRect(0, 0, width, height);
+            drawDNA(currentDNA, aiCtx);
+            updateStats();
+        }
+
+        
+        function createRandomShape() {
+            const shape = {
+                r: Math.random() * 255, g: Math.random() * 255, b: Math.random() * 255,
+                a: Math.random() * 0.5 + 0.1, // Şeffaflık
+            };
+            
+            
+            if (ART_STYLE === 'triangle') {
+                shape.points = [{ x: Math.random()*width, y: Math.random()*height }, { x: Math.random()*width, y: Math.random()*height }, { x: Math.random()*width, y: Math.random()*height }];
+            } else if (ART_STYLE === 'circle') {
+                shape.x = Math.random() * width; shape.y = Math.random() * height; shape.radius = Math.random() * 30 + 5;
+            } else if (ART_STYLE === 'rect') {
+                shape.x = Math.random() * width; shape.y = Math.random() * height; shape.w = Math.random() * 50 + 5; shape.h = Math.random() * 50 + 5;
+            } else if (ART_STYLE === 'line') {
+                shape.x1 = Math.random() * width; shape.y1 = Math.random() * height; shape.x2 = Math.random() * width; shape.y2 = Math.random() * height; shape.width = Math.random() * 5 + 1;
+            }
+            return shape;
+        }
+
+        
+        function drawDNA(dna, context) {
+            context.fillStyle = "#000"; context.fillRect(0, 0, width, height);
+            
+            for (let s of dna) {
+                context.fillStyle = `rgba(${s.r},${s.g},${s.b},${s.a})`;
+                context.strokeStyle = `rgba(${s.r},${s.g},${s.b},${s.a})`;
+                context.beginPath();
+                
+                if (ART_STYLE === 'triangle') {
+                    context.moveTo(s.points[0].x, s.points[0].y); 
+                    context.lineTo(s.points[1].x, s.points[1].y); 
+                    context.lineTo(s.points[2].x, s.points[2].y); 
+                    context.fill();
+                } else if (ART_STYLE === 'circle') {
+                    context.arc(s.x, s.y, s.radius, 0, Math.PI * 2); context.fill();
+                } else if (ART_STYLE === 'rect') {
+                    context.fillRect(s.x, s.y, s.w, s.h);
+                } else if (ART_STYLE === 'line') {
+                    context.lineWidth = s.width; 
+                    context.moveTo(s.x1, s.y1); 
+                    context.lineTo(s.x2, s.y2); 
+                    context.stroke();
+                }
+            }
+        }
+
+        
+        function evolve() {
+            if (!isRunning) return;
+            
+            let speed = parseInt(document.getElementById('speedSlider').value);
+            
+            
+            for (let k = 0; k < speed; k++) {
+                
+                let mutatedDNA = JSON.parse(JSON.stringify(currentDNA));
+                let index = Math.floor(Math.random() * POLYGON_COUNT);
+                let shape = mutatedDNA[index];
+                
+                
+                if (Math.random() < 0.5) {
+                    shape.r = clamp(shape.r + (Math.random()-0.5)*50, 0, 255);
+                    shape.g = clamp(shape.g + (Math.random()-0.5)*50, 0, 255);
+                    shape.b = clamp(shape.b + (Math.random()-0.5)*50, 0, 255);
+                    shape.a = clamp(shape.a + (Math.random()-0.5)*0.1, 0.1, 1);
+                } else { 
+                    mutateGeometry(shape); 
+                }
+                
+                
+                
+                drawDNA(mutatedDNA, aiCtx);
+                let error = calculateError();
+                
+                if (error < bestError) { 
+                    
+                    currentDNA = mutatedDNA; 
+                    bestError = error; 
+                } else {
+                    
+                }
+            }
+            
+            
+            drawDNA(currentDNA, aiCtx);
+            updateStats();
+            generation += speed; // Sayaç
+            
+            animationId = requestAnimationFrame(evolve);
+        }
+
+        
+        function mutateGeometry(shape) {
+            let amount = width / 10; 
+            if (ART_STYLE === 'triangle') {
+                let p = shape.points[Math.floor(Math.random()*3)]; 
+                p.x = clamp(p.x + (Math.random()-0.5)*amount, 0, width); 
+                p.y = clamp(p.y + (Math.random()-0.5)*amount, 0, height);
+            } else if (ART_STYLE === 'circle') {
+                shape.x = clamp(shape.x + (Math.random()-0.5)*amount, 0, width); 
+                shape.y = clamp(shape.y + (Math.random()-0.5)*amount, 0, height); 
+                shape.radius = clamp(shape.radius + (Math.random()-0.5)*10, 1, 100);
+            } else if (ART_STYLE === 'rect') {
+                shape.x = clamp(shape.x + (Math.random()-0.5)*amount, 0, width); 
+                shape.y = clamp(shape.y + (Math.random()-0.5)*amount, 0, height); 
+                shape.w = clamp(shape.w + (Math.random()-0.5)*10, 1, 100); 
+                shape.h = clamp(shape.h + (Math.random()-0.5)*10, 1, 100);
+            } else if (ART_STYLE === 'line') {
+                shape.x1 = clamp(shape.x1 + (Math.random()-0.5)*amount, 0, width); 
+                shape.y1 = clamp(shape.y1 + (Math.random()-0.5)*amount, 0, height); 
+                shape.x2 = clamp(shape.x2 + (Math.random()-0.5)*amount, 0, width); 
+                shape.y2 = clamp(shape.y2 + (Math.random()-0.5)*amount, 0, height);
+            }
+        }
+
+        
+        function calculateError() {
+            let currentData = aiCtx.getImageData(0, 0, width, height).data;
+            let total = 0;
+            
+            for (let i = 0; i < currentData.length; i += 16) { 
+                total += Math.abs(currentData[i] - targetData[i]) + 
+                         Math.abs(currentData[i+1] - targetData[i+1]) + 
+                         Math.abs(currentData[i+2] - targetData[i+2]);
+            }
+            return total;
+        }
+
+        
+        function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+        
+        function updateStats() { 
+            document.getElementById('genStat').innerText = `Nesil: ${generation}`; 
+            
+            document.getElementById('errorStat').innerText = `Hata Skoru: ${Math.floor(bestError/1000)}k`; 
+        }
+        
+        function togglePause() { 
+            isRunning = !isRunning; 
+            const btn = document.getElementById('startBtn'); 
+            if (isRunning) { 
+                if(bestError === Infinity) { 
+                    drawDNA(currentDNA, aiCtx); 
+                    bestError = calculateError(); 
+                } 
+                evolve(); 
+                btn.innerText = "Evrimi Duraklat"; 
+                btn.style.background = "#ef4444"; 
+            } else { 
+                cancelAnimationFrame(animationId); 
+                btn.innerText = "Evrimi Sürdür"; 
+                btn.style.background = "#3b82f6"; 
+            } 
+        }
+        
+        function downloadArt() { 
+            const link = document.createElement('a'); 
+            link.download = `polygen-sanat-${generation}.png`; 
+            link.href = document.getElementById('aiCanvas').toDataURL(); 
+            link.click(); 
+        }
+    </script>
+</body>
+</html>
