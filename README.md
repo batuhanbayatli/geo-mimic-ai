@@ -1,37 +1,66 @@
-# 🧬 GeoMimic AI | Evrimsel Sanat Motoru
+# 🧬 GeoMimic AI // Evrimsel Görsel Rekonstrüksiyon Motoru
+> **bGroup // bAI × DATEX Tasarım**  
+> *Genetik Algoritmalar ve Stokastik Optimizasyon Kullanan İstemci Tabanlı (Client-Side) Evrimsel Sanat Motoru*
 
-> **"Doğanın evrim sürecini, geometrik dünyada yeniden simüle ediyoruz."**
+<p align="left">
+  <a href="https://geo-mimic-ai.vercel.app/"><img src="https://img.shields.io/badge/Canlı%20Demo-Vercel-2563eb?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Canlı Demo"></a>
+  <img src="https://img.shields.io/badge/Ecosystem-bGroup-0f172a?style=for-the-badge" alt="bGroup">
+  <img src="https://img.shields.io/badge/Partners-bAI%20%C3%97%20DATEX%20Tasar%C4%B1m-7c3aed?style=for-the-badge" alt="Marka İş Birliği">
+  <img src="https://img.shields.io/badge/Core-Genetic%20Algorithm-059669?style=for-the-badge" alt="Core Engine">
+  <img src="https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge" alt="License">
+</p>
 
-**GeoMimic.ai**, herhangi bir hedef görüntüyü, Genetik Algoritmalar (Genetic Algorithms) ve Stokastik Optimizasyon kullanarak, rastgele geometrik şekillerden (poligonlar, daireler, çizgiler) yeniden inşa eden, tamamen istemci taraflı (client-side) çalışan bir yapay zeka motorudur.
+---
 
-## 🚀 Özellikler
+## 📌 Proje Özeti
 
-* **🧠 Genetik Algoritma Çekirdeği:** Mutasyon, Çaprazlama (Crossover) ve Doğal Seçilim (Selection) prensiplerini kullanarak görüntüyü sıfırdan öğrenir.
-* **🎨 Çoklu Sanat Tarzı:**
-    * 🔺 **Poligon (Low Poly):** Üçgenlerle modern sanat.
-    * ⚫ **Noktacılık (Pointillism):** Dairelerle estetik dokunuşlar.
-    * 🟥 **Kübizm:** Dikdörtgenlerle soyut yaklaşım.
-    * ✏️ **Eskiz:** Çizgilerle karakalem etkisi.
-* **⚡ Turbo Mod:** Tarayıcının limitlerini zorlayan hızlandırılmış evrim süreci.
-* **🔒 %100 İstemci Taraflı:** Sunucu maliyeti yok. Tüm işlemler kullanıcının tarayıcısında gerçekleşir. Veriler dışarı çıkmaz.
-* **💾 Dışa Aktarım:** Oluşturulan evrimsel sanatı yüksek çözünürlüklü PNG olarak indirme imkanı.
+**GeoMimic AI**, herhangi bir kaynak hedef görüntüyü; **Genetik Algoritmalar (Genetic Algorithms)** ve **Stokastik Optimizasyon** ilkeleriyle, rastgele üretilen geometrik formlardan (poligonlar, daireler, dikdörtgenler, çizgiler) sıfırdan yeniden inşa eden tarayıcı tabanlı bir yapay zeka motorudur.
 
-## 🛠️ Nasıl Çalışır? (Kaputun Altı)
+Klasik sinir ağlarının (Neural Network) aksine kapalı bir "Kara Kutu" (Black Box) sunmaz; mutasyon, doğal seçilim ve uygunluk (Fitness) fonksiyonunun kaostan düzene geçiş adımlarını canlı olarak görselleştirir.
 
-GeoMimic, bir sinir ağı (Neural Network) değildir. Klasik bir "Black Box" yerine, sürecini izleyebildiğiniz **Evrimsel Hesaplama** yöntemini kullanır:
+---
 
-1.  **Popülasyon:** Sistem rastgele bir DNA (şekiller dizisi) oluşturur.
-2.  **Mutasyon:** Her döngüde bir şeklin rengi, konumu veya boyutu rastgele değiştirilir.
-3.  **Fitness (Uygunluk) Testi:** Yeni çizim ile orijinal resim arasındaki piksel farkı (Loss) hesaplanır.
-4.  **Seçilim:** Eğer yeni mutasyon orijinal resme daha çok benziyorsa (daha az hata), DNA güncellenir. Benzemiyorsa çöpe atılır.
-5.  **Tekrar:** Bu işlem saniyede yüzlerce kez tekrarlanarak kaostan düzene geçilir.
+## 🧠 Nasıl Çalışır? (Evrimsel Hesaplama)
 
+1. **Popülasyon & Genom Başlatma:** Sistem rastgele koordinat, renk ve şeffaflığa sahip bir DNA (şekiller dizisi) üretir.
+2. **Mutasyon:** Her iterasyonda bir şeklin rengi, saydamlığı veya köşe koordinatları rastgele değiştirilir.
+3. **Fitness (Uygunluk) Testi:** Yeni çizim ile kaynak görsel arasındaki piksel farkı (Loss) $O(1)$ örnekleme ile hesaplanır.
+4. **Doğal Seçilim:** Mutasyon hedef görsele daha çok benziyorsa (daha düşük kayıp) genom güncellenir; benzemiyorsa elenir.
+5. **Döngü:** Bu süreç saniyede binlerce kez tekrarlanarak kaotik geometriden anlamlı bir sanat eseri türetilir.
 
-### Canlı Demo
-[🔗 Canlı Demo İçin Tıklayın](https://batuhanbayatli.github.io/geo-mimic-ai)
+---
 
-## 👨‍💻 Geliştirici
+## ✨ Öne Çıkan Özellikler
 
-**Batuhan Bayatlı**
-* [LinkedIn](https://linkedin.com/in/batuhanbayatlı)
-* [GitHub](https://github.com/batuhanbayatli)
+* 🎨 **Çoklu Sanat Stili:**
+  * 🔺 **Low-Poly (Üçgenler):** Modern köşeli poligon sanatı.
+  * ⚫ **Pointillism (Noktacılık):** Dairelerle estetik empresyonizm.
+  * 🟥 **Kübizm (Dikdörtgenler):** Soyut geometrik kompozisyon.
+  * ✏️ **Eskiz (Çizgiler):** Karakalem hissi veren çizgisel çizim.
+* ⚡ **Turbo Donanım Optimizasyonu:** Web tarayıcısının gücünü kullanan çoklu mutasyon döngüsü.
+* 🔒 **%100 İstemci Tabanlı (Client-Side):** Sıfır sunucu ve API maliyeti. Yüklenen görseller kullanıcının cihazından asla dışarı çıkmaz.
+* 💾 **Yüksek Çözünürlüklü Dışa Aktarım:** Oluşturulan evrimsel eseri anında PNG olarak indirme desteği.
+
+---
+
+## 🛠️ Teknoloji Yığını
+
+* **Arayüz / Tasarım:** Semantic HTML5, Tailwind CSS (Clean Light SaaS Design System)
+* **Hesaplama & Çizim:** HTML5 Canvas API (willReadFrequently & Fast Pixel Sampling)
+* **İkonografi:** Lucide Icons CDN
+* **Algoritmik Motor:** Vanilla ES6+ JavaScript (Sıfır harici kütüphane bağımlılığı)
+* **Dağıtım / CI-CD:** Vercel Edge Network
+
+---
+
+## 🚀 Yerel Kurulum ve Çalıştırma
+
+```bash
+# Repoyu klonlayın
+git clone [https://github.com/batuhanbayatli/geo-mimic-ai.git](https://github.com/batuhanbayatli/geo-mimic-ai.git)
+
+# Proje dizinine geçin
+cd geo-mimic-ai
+
+# index.html dosyasını tarayıcınızda açın veya canlı demoyu ziyaret edin:
+# [https://geo-mimic-ai.vercel.app/](https://geo-mimic-ai.vercel.app/)
