@@ -2,363 +2,487 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Genetik Algoritmalar kullanan İstemci Taraflı (Client-Side) Evrimsel Sanat Motoru.">
+    <meta name="description" content="Genetik Algoritmalar ve Stokastik Optimizasyon kullanan İstemci Taraflı Evrimsel Sanat Motoru.">
     <meta name="author" content="Batuhan Bayatlı">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoMimic AI | Evrimsel Sanat Motoru</title>
+    <title>GeoMimic AI // Evrimsel Sanat Motoru</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        surface: {
+                            base: '#f8fafc',
+                            card: '#ffffff',
+                            border: '#e2e8f0',
+                            hover: '#f1f5f9',
+                            muted: '#64748b',
+                            dark: '#0f172a'
+                        },
+                        ai: {
+                            blue: '#2563eb',
+                            sky: '#0284c7',
+                            purple: '#7c3aed',
+                            emerald: '#059669',
+                            rose: '#e11d48'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root { --primary: #3b82f6; --bg: #0f172a; --panel: #1e293b; --text: #e2e8f0; --accent: #8b5cf6; }
-        body {
-            background-color: var(--bg); color: var(--text);
-            font-family: 'Segoe UI', Inter, -apple-system, sans-serif;
-            display: flex; flex-direction: column; align-items: center;
-            margin: 0; padding: 40px 20px; min-height: 100vh;
-        }
-        h1 { 
-            margin: 0; font-weight: 800; letter-spacing: -1px; 
-            background: linear-gradient(to right, var(--primary), var(--accent)); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            font-size: 2.5rem; text-transform: uppercase;
-        }
-        p { color: #94a3b8; margin-bottom: 30px; font-size: 1.1rem; text-align: center; }
-        
-        .main-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-            background: var(--panel); padding: 30px; border-radius: 20px;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
-        }
-        canvas { 
-            border-radius: 12px; background: #000; width: 300px; height: 300px; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8); image-rendering: pixelated;
-        }
-        .label { display: block; margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700; text-align: center; }
-        
-        .controls {
-            margin-top: 30px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
-            width: 100%; max-width: 700px; background: var(--panel); padding: 25px;
-            border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);
-        }
-        .full-width { grid-column: 1 / -1; }
-        label { font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 8px; display: block; }
-        
-        button, select, .upload-btn {
-            width: 100%; padding: 12px; background: #334155; color: white; border: 1px solid #475569;
-            border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; text-align: center; font-family: inherit; font-size: 0.9rem;
-        }
-        button:hover, .upload-btn:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-        
-        input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
-        input[type="file"] { display: none; }
-
-        .footer { margin-top: 50px; font-size: 0.9rem; color: #64748b; text-align: center; }
-        .footer a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; transition: 0.2s; }
-        .footer a:hover { border-bottom-color: var(--primary); }
-        
-        .stats-bar {
-            grid-column: 1 / -1; display: flex; justify-content: space-between;
-            padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;
-            font-family: 'Courier New', monospace; font-size: 0.9rem; color: #cbd5e1;
-        }
-        
-        
-        @media (max-width: 700px) { 
-            .main-container { grid-template-columns: 1fr; } 
-            h1 { font-size: 2rem; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        canvas { image-rendering: pixelated; }
+        input[type=range] { -webkit-appearance: none; background: #e2e8f0; height: 6px; border-radius: 4px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #2563eb; cursor: pointer; box-shadow: 0 0 10px rgba(37, 99, 235, 0.3); }
     </style>
 </head>
-<body>
+<body class="bg-surface-base text-surface-dark min-h-screen flex flex-col antialiased selection:bg-ai-blue selection:text-white">
 
-    <h1>GeoMimic AI</h1>
-    <p>Genetik Algoritmalarla Görsel Rekonstrüksiyon Motoru</p>
+   
+    <header class="border-b border-surface-border bg-surface-card sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-surface-dark flex items-center justify-center text-white shadow-md">
+                    <i data-lucide="dna" class="w-5 h-5 text-sky-400"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-base sm:text-lg tracking-tight text-surface-dark">GeoMimic<span class="text-ai-blue">.ai</span></span>
+                        <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-50 text-ai-blue border border-blue-200">bGroup // bAI</span>
+                    </div>
+                    <p class="text-[11px] text-surface-muted hidden sm:block">Genetik Algoritmalarla İstemci Tabanlı Evrimsel Görsel Rekonstrüksiyon</p>
+                </div>
+            </div>
 
-    <div class="main-container">
-        <div>
-            <span class="label">Kaynak Görüntü (Hedef)</span>
-            <canvas id="targetCanvas" width="300" height="300"></canvas>
+            
+            <a href="https://www.linkedin.com/in/batuhanbayatlı" target="_blank" class="flex items-center gap-2.5 pl-3 border-l border-surface-border hover:opacity-85 transition">
+                <img src="https://avatars.githubusercontent.com/u/255363609?v=4" class="w-9 h-9 rounded-full border border-surface-border shadow-sm object-cover" alt="Batuhan Bayatlı">
+                <div class="hidden lg:block text-left">
+                    <div class="text-xs font-extrabold text-surface-dark leading-tight">Batuhan Bayatlı</div>
+                    <div class="text-[10px] text-ai-blue font-semibold leading-tight">InsurTech &amp; AI Specialist</div>
+                </div>
+            </a>
         </div>
-        <div>
-            <span class="label">Yapay Zeka Çıktısı (Evrim)</span>
-            <canvas id="aiCanvas" width="300" height="300"></canvas>
-        </div>
-    </div>
+    </header>
 
-    <div class="controls">
-        <div class="full-width">
-            <label class="upload-btn">
-                📂 Kaynak Fotoğraf Yükle
-                <input type="file" id="uploadInput" accept="image/*">
-            </label>
-        </div>
-        
-        <div class="stats-bar">
-            <span id="genStat">Nesil: 0</span>
-            <span id="errorStat">Hata Payı: ---</span>
+    
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+       
+        <div class="bg-surface-card border border-surface-border shadow-sm rounded-2xl p-6 relative overflow-hidden">
+            <div class="max-w-3xl">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-ai-blue">Evrimsel Hesaplama &amp; Stokastik Optimizasyon</span>
+                <h1 class="text-2xl sm:text-3xl font-black text-surface-dark tracking-tight mt-1">Doğanın Evrimini Geometrik Dünyada Simüle Edin</h1>
+                <p class="text-xs text-surface-muted font-medium mt-2 leading-relaxed">
+                    GeoMimic AI, klasik kara kutu (Black Box) yapay zekalar yerine; mutasyon, doğal seçilim ve fitness testleri uygulayarak rastgele geometrik şekillerden anlamlı görseller türetir. Tüm işlemler %100 tarayıcınızda (Client-Side) gerçekleşir.
+                </p>
+            </div>
         </div>
 
-        <div>
-            <label>Çizim Tarzı (Fırça)</label>
-            <select id="styleSelect" onchange="resetDNA()">
-                <option value="triangle">Poligonlar (Üçgen)</option>
-                <option value="circle">Noktacılık (Daire)</option>
-                <option value="rect">Kübizm (Kare)</option>
-                <option value="line">Eskiz (Çizgiler)</option>
-            </select>
-        </div>
-        <div>
-            <label>Karmaşıklık (Şekil Sayısı)</label>
-            <select id="countSelect" onchange="resetDNA()">
-                <option value="50">Düşük (Soyut Sanat)</option>
-                <option value="150" selected>Orta (Dengeli)</option>
-                <option value="400">Yüksek (Detaylı)</option>
-            </select>
-        </div>
-        <div class="full-width">
-            <label>Evrim Hızı (Turbo Mod)</label>
-            <input type="range" id="speedSlider" min="1" max="200" value="20">
-            <small style="color:#64748b; font-size: 0.75rem; display:block; text-align:center; margin-top:5px;">Sağa çektikçe işlemci kullanımı artar.</small>
-        </div>
-        <button id="startBtn" onclick="togglePause()" disabled>Evrimi Başlat</button>
-        <button onclick="downloadArt()">Sonucu İndir (PNG)</button>
-    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <div class="footer">
-        Geliştirici: <a href="https://linkedin.com/in/batuhanbayatlı" target="_blank">Batuhan Bayatlı</a> | 
-        <a href="https://github.com/batuhanbayatli" target="_blank">GitHub Profili</a>
-    </div>
+            
+            <div class="lg:col-span-7 bg-surface-card p-6 rounded-2xl border border-surface-border shadow-sm space-y-5">
+                <div class="flex items-center justify-between border-b border-surface-border pb-3">
+                    <span class="text-xs font-bold text-surface-dark flex items-center gap-1.5">
+                        <i data-lucide="eye" class="w-4 h-4 text-ai-blue"></i> Canlı Evrim Tuvali
+                    </span>
+                    <div class="flex gap-2">
+                        <button onclick="loadSampleImage()" class="text-[10px] font-bold px-2.5 py-1 bg-surface-base hover:bg-surface-hover border border-surface-border rounded-lg transition">
+                            🖼️ Örnek Görsel Yükle
+                        </button>
+                    </div>
+                </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   
+                    <div class="flex flex-col items-center space-y-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-surface-muted">Kaynak Görüntü (Hedef)</span>
+                        <div class="w-[280px] h-[280px] bg-slate-900 rounded-xl overflow-hidden border border-surface-border flex items-center justify-center shadow-inner">
+                            <canvas id="targetCanvas" width="280" height="280" class="w-full h-full object-cover"></canvas>
+                        </div>
+                    </div>
+
+                    
+                    <div class="flex flex-col items-center space-y-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-ai-blue flex items-center gap-1">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i> AI Evrimsel Çıktı
+                        </span>
+                        <div class="w-[280px] h-[280px] bg-black rounded-xl overflow-hidden border-2 border-ai-blue/30 shadow-md flex items-center justify-center">
+                            <canvas id="aiCanvas" width="280" height="280" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                    <div class="bg-surface-base p-3 rounded-xl border border-surface-border text-center">
+                        <span class="text-[10px] font-bold uppercase text-surface-muted">Evrimsel Nesil</span>
+                        <div id="genStat" class="text-xl font-black font-mono mt-0.5 text-surface-dark">0</div>
+                    </div>
+                    <div class="bg-surface-base p-3 rounded-xl border border-surface-border text-center">
+                        <span class="text-[10px] font-bold uppercase text-surface-muted">Piksel Hata Skoru</span>
+                        <div id="errorStat" class="text-xl font-black font-mono mt-0.5 text-ai-rose">---</div>
+                    </div>
+                    <div class="bg-surface-base p-3 rounded-xl border border-surface-border text-center col-span-2 sm:col-span-1">
+                        <span class="text-[10px] font-bold uppercase text-surface-muted">Benzerlik Oranı</span>
+                        <div id="fitnessStat" class="text-xl font-black font-mono mt-0.5 text-ai-emerald">%0.0</div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="lg:col-span-5 bg-surface-card p-6 rounded-2xl border border-surface-border shadow-sm space-y-5">
+                <h2 class="text-sm font-bold text-surface-dark flex items-center gap-2 border-b border-surface-border pb-3">
+                    <i data-lucide="sliders" class="w-4 h-4 text-ai-blue"></i> Genetik Parametreler
+                </h2>
+
+                <div class="space-y-4">
+                    
+                    <div>
+                        <label class="block text-[11px] font-bold text-surface-muted mb-1.5">1. Kendi Fotoğrafını Yükle</label>
+                        <label class="w-full p-2.5 bg-surface-base hover:bg-surface-hover border border-dashed border-surface-border rounded-xl cursor-pointer text-xs font-bold text-center flex items-center justify-center gap-2 transition text-surface-dark">
+                            <i data-lucide="upload" class="w-4 h-4 text-ai-blue"></i> Fotoğraf Seç (PNG/JPG)
+                            <input type="file" id="uploadInput" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+
+                    
+                    <div>
+                        <label class="block text-[11px] font-bold text-surface-muted mb-1.5">2. Geometrik Fırça Tarzı</label>
+                        <select id="styleSelect" onchange="resetDNA()" class="w-full p-2.5 bg-surface-base border border-surface-border rounded-xl text-xs font-semibold text-surface-dark outline-none focus:border-ai-blue">
+                            <option value="triangle" selected>🔺 Poligonlar (Low-Poly Üçgen)</option>
+                            <option value="circle">⚫ Noktacılık (Pointillism Daire)</option>
+                            <option value="rect">🟥 Kübizm (Dikdörtgenler)</option>
+                            <option value="line">✏️ Eskiz (Çizgisel Sanat)</option>
+                        </select>
+                    </div>
+
+                    
+                    <div>
+                        <label class="block text-[11px] font-bold text-surface-muted mb-1.5">3. Genom Karmaşıklığı (Şekil Sayısı)</label>
+                        <select id="countSelect" onchange="resetDNA()" class="w-full p-2.5 bg-surface-base border border-surface-border rounded-xl text-xs font-semibold text-surface-dark outline-none focus:border-ai-blue">
+                            <option value="50">50 Şekil — Minimalist / Soyut Sanat</option>
+                            <option value="150" selected>150 Şekil — Dengeli &amp; Optimize</option>
+                            <option value="400">400 Şekil — Yüksek Detaylı Rekonstrüksiyon</option>
+                        </select>
+                    </div>
+
+                    
+                    <div>
+                        <div class="flex justify-between items-center text-[11px] font-bold mb-1">
+                            <span class="text-surface-muted">4. Evrim Hızı (Döngü Başı Mutasyon)</span>
+                            <span id="speedVal" class="text-ai-blue font-mono">30x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="1" max="150" value="30" oninput="document.getElementById('speedVal').innerText = this.value + 'x'" class="w-full">
+                        <span class="text-[10px] text-surface-muted block mt-1">İşlemci gücüne göre mutasyon hızını artırabilirsiniz.</span>
+                    </div>
+
+                   
+                    <div class="pt-3 border-t border-surface-border space-y-2">
+                        <button id="startBtn" onclick="togglePause()" disabled class="w-full py-3 bg-ai-blue hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                            <i data-lucide="play" class="w-4 h-4"></i> Evrimi Başlat
+                        </button>
+                        <button onclick="downloadArt()" class="w-full py-2.5 bg-surface-base hover:bg-surface-hover border border-surface-border text-surface-dark font-bold text-xs rounded-xl transition flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> Sanat Çıktısını İndir (PNG)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    
+    <footer class="mt-auto border-t border-surface-border bg-surface-card py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <img src="https://avatars.githubusercontent.com/u/255363609?v=4" alt="Batuhan Bayatlı" class="w-10 h-10 rounded-full border border-surface-border shadow-sm">
+                <div>
+                    <div class="text-xs font-bold text-surface-dark">Batuhan Bayatlı</div>
+                    <div class="text-[11px] text-surface-muted font-medium">InsurTech &amp; AI Specialist | SEGEM | Japanese &amp; English</div>
+                </div>
+            </div>
+            <div class="text-center md:text-right">
+                <div class="text-xs font-extrabold text-surface-dark">bAI // bGroup Ecosystem</div>
+                <div class="text-[11px] text-surface-muted">Genetik algoritmalarla çalışan açık kaynaklı evrimsel hesaplama motoru.</div>
+            </div>
+        </div>
+    </footer>
+
+    
     <script>
-        
         let POLYGON_COUNT = 150;
-        let ART_STYLE = 'triangle'; // triangle, circle, rect, line
-        
-        
+        let ART_STYLE = 'triangle';
         let targetCtx, aiCtx;
-        let width = 300, height = 300;
-        let targetData; 
+        let width = 280, height = 280;
+        let targetData = null;
         let currentDNA = [];
         let isRunning = false;
         let generation = 0;
         let bestError = Infinity;
+        let initialError = 1;
         let animationId;
 
-        
-        window.onload = () => {
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
             const targetCanvas = document.getElementById('targetCanvas');
             const aiCanvas = document.getElementById('aiCanvas');
             targetCtx = targetCanvas.getContext('2d', { willReadFrequently: true });
             aiCtx = aiCanvas.getContext('2d', { willReadFrequently: true });
 
             document.getElementById('uploadInput').addEventListener('change', handleUpload);
-        };
+            loadSampleImage();
+        });
 
-        
+        function loadSampleImage() {
+            // Standart geometrik test portresi çiz
+            targetCtx.fillStyle = '#0f172a';
+            targetCtx.fillRect(0, 0, width, height);
+
+            
+            targetCtx.beginPath();
+            targetCtx.arc(140, 100, 60, 0, Math.PI * 2);
+            targetCtx.fillStyle = '#f59e0b';
+            targetCtx.fill();
+
+            
+            targetCtx.beginPath();
+            targetCtx.moveTo(0, 280);
+            targetCtx.lineTo(100, 130);
+            targetCtx.lineTo(200, 280);
+            targetCtx.fillStyle = '#2563eb';
+            targetCtx.fill();
+
+            targetCtx.beginPath();
+            targetCtx.moveTo(120, 280);
+            targetCtx.lineTo(210, 160);
+            targetCtx.lineTo(280, 280);
+            targetCtx.fillStyle = '#7c3aed';
+            targetCtx.fill();
+
+            targetData = targetCtx.getImageData(0, 0, width, height).data;
+            document.getElementById('startBtn').disabled = false;
+            resetDNA();
+        }
+
         function handleUpload(e) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    
                     targetCtx.drawImage(img, 0, 0, width, height);
-                    
                     targetData = targetCtx.getImageData(0, 0, width, height).data;
                     resetDNA();
                     document.getElementById('startBtn').disabled = false;
-                }
+                };
                 img.src = event.target.result;
-            }
-            if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+            };
+            if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
         }
 
-        
         function resetDNA() {
             isRunning = false;
             const btn = document.getElementById('startBtn');
-            btn.innerText = "Evrimi Başlat";
-            btn.style.background = "#334155";
-            
+            btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Evrimi Başlat`;
+            btn.className = "w-full py-3 bg-ai-blue hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2";
+
             POLYGON_COUNT = parseInt(document.getElementById('countSelect').value);
             ART_STYLE = document.getElementById('styleSelect').value;
 
             currentDNA = [];
-            
             for (let i = 0; i < POLYGON_COUNT; i++) {
                 currentDNA.push(createRandomShape());
             }
+
             bestError = Infinity;
             generation = 0;
-            
-            
+
             aiCtx.fillStyle = "#000";
             aiCtx.fillRect(0, 0, width, height);
             drawDNA(currentDNA, aiCtx);
+
+            if (targetData) {
+                bestError = calculateError();
+                initialError = bestError || 1;
+            }
             updateStats();
+            lucide.createIcons();
         }
 
-        
         function createRandomShape() {
             const shape = {
-                r: Math.random() * 255, g: Math.random() * 255, b: Math.random() * 255,
-                a: Math.random() * 0.5 + 0.1, // Şeffaflık
+                r: Math.floor(Math.random() * 256),
+                g: Math.floor(Math.random() * 256),
+                b: Math.floor(Math.random() * 256),
+                a: Math.random() * 0.5 + 0.15
             };
-            
-            
+
             if (ART_STYLE === 'triangle') {
-                shape.points = [{ x: Math.random()*width, y: Math.random()*height }, { x: Math.random()*width, y: Math.random()*height }, { x: Math.random()*width, y: Math.random()*height }];
+                shape.points = [
+                    { x: Math.random() * width, y: Math.random() * height },
+                    { x: Math.random() * width, y: Math.random() * height },
+                    { x: Math.random() * width, y: Math.random() * height }
+                ];
             } else if (ART_STYLE === 'circle') {
-                shape.x = Math.random() * width; shape.y = Math.random() * height; shape.radius = Math.random() * 30 + 5;
+                shape.x = Math.random() * width;
+                shape.y = Math.random() * height;
+                shape.radius = Math.random() * 25 + 5;
             } else if (ART_STYLE === 'rect') {
-                shape.x = Math.random() * width; shape.y = Math.random() * height; shape.w = Math.random() * 50 + 5; shape.h = Math.random() * 50 + 5;
+                shape.x = Math.random() * width;
+                shape.y = Math.random() * height;
+                shape.w = Math.random() * 40 + 8;
+                shape.h = Math.random() * 40 + 8;
             } else if (ART_STYLE === 'line') {
-                shape.x1 = Math.random() * width; shape.y1 = Math.random() * height; shape.x2 = Math.random() * width; shape.y2 = Math.random() * height; shape.width = Math.random() * 5 + 1;
+                shape.x1 = Math.random() * width;
+                shape.y1 = Math.random() * height;
+                shape.x2 = Math.random() * width;
+                shape.y2 = Math.random() * height;
+                shape.width = Math.random() * 4 + 1;
             }
             return shape;
         }
 
-        
         function drawDNA(dna, context) {
-            context.fillStyle = "#000"; context.fillRect(0, 0, width, height);
-            
+            context.fillStyle = "#000";
+            context.fillRect(0, 0, width, height);
+
             for (let s of dna) {
                 context.fillStyle = `rgba(${s.r},${s.g},${s.b},${s.a})`;
                 context.strokeStyle = `rgba(${s.r},${s.g},${s.b},${s.a})`;
                 context.beginPath();
-                
+
                 if (ART_STYLE === 'triangle') {
-                    context.moveTo(s.points[0].x, s.points[0].y); 
-                    context.lineTo(s.points[1].x, s.points[1].y); 
-                    context.lineTo(s.points[2].x, s.points[2].y); 
+                    context.moveTo(s.points[0].x, s.points[0].y);
+                    context.lineTo(s.points[1].x, s.points[1].y);
+                    context.lineTo(s.points[2].x, s.points[2].y);
                     context.fill();
                 } else if (ART_STYLE === 'circle') {
-                    context.arc(s.x, s.y, s.radius, 0, Math.PI * 2); context.fill();
+                    context.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    context.fill();
                 } else if (ART_STYLE === 'rect') {
                     context.fillRect(s.x, s.y, s.w, s.h);
                 } else if (ART_STYLE === 'line') {
-                    context.lineWidth = s.width; 
-                    context.moveTo(s.x1, s.y1); 
-                    context.lineTo(s.x2, s.y2); 
+                    context.lineWidth = s.width;
+                    context.moveTo(s.x1, s.y1);
+                    context.lineTo(s.x2, s.y2);
                     context.stroke();
                 }
             }
         }
 
-        
         function evolve() {
             if (!isRunning) return;
-            
-            let speed = parseInt(document.getElementById('speedSlider').value);
-            
-            
+            const speed = parseInt(document.getElementById('speedSlider').value);
+
             for (let k = 0; k < speed; k++) {
-                
                 let mutatedDNA = JSON.parse(JSON.stringify(currentDNA));
                 let index = Math.floor(Math.random() * POLYGON_COUNT);
                 let shape = mutatedDNA[index];
-                
-                
+
                 if (Math.random() < 0.5) {
-                    shape.r = clamp(shape.r + (Math.random()-0.5)*50, 0, 255);
-                    shape.g = clamp(shape.g + (Math.random()-0.5)*50, 0, 255);
-                    shape.b = clamp(shape.b + (Math.random()-0.5)*50, 0, 255);
-                    shape.a = clamp(shape.a + (Math.random()-0.5)*0.1, 0.1, 1);
-                } else { 
-                    mutateGeometry(shape); 
+                    shape.r = clamp(shape.r + (Math.random() - 0.5) * 40, 0, 255);
+                    shape.g = clamp(shape.g + (Math.random() - 0.5) * 40, 0, 255);
+                    shape.b = clamp(shape.b + (Math.random() - 0.5) * 40, 0, 255);
+                    shape.a = clamp(shape.a + (Math.random() - 0.5) * 0.1, 0.1, 0.8);
+                } else {
+                    mutateGeometry(shape);
                 }
-                
-                
-                
+
                 drawDNA(mutatedDNA, aiCtx);
                 let error = calculateError();
-                
-                if (error < bestError) { 
-                    
-                    currentDNA = mutatedDNA; 
-                    bestError = error; 
-                } else {
-                    
+
+                if (error < bestError) {
+                    currentDNA = mutatedDNA;
+                    bestError = error;
                 }
             }
-            
-            
+
             drawDNA(currentDNA, aiCtx);
+            generation += speed;
             updateStats();
-            generation += speed; // Sayaç
-            
             animationId = requestAnimationFrame(evolve);
         }
 
-        
         function mutateGeometry(shape) {
-            let amount = width / 10; 
+            const amount = width / 12;
             if (ART_STYLE === 'triangle') {
-                let p = shape.points[Math.floor(Math.random()*3)]; 
-                p.x = clamp(p.x + (Math.random()-0.5)*amount, 0, width); 
-                p.y = clamp(p.y + (Math.random()-0.5)*amount, 0, height);
+                let p = shape.points[Math.floor(Math.random() * 3)];
+                p.x = clamp(p.x + (Math.random() - 0.5) * amount, 0, width);
+                p.y = clamp(p.y + (Math.random() - 0.5) * amount, 0, height);
             } else if (ART_STYLE === 'circle') {
-                shape.x = clamp(shape.x + (Math.random()-0.5)*amount, 0, width); 
-                shape.y = clamp(shape.y + (Math.random()-0.5)*amount, 0, height); 
-                shape.radius = clamp(shape.radius + (Math.random()-0.5)*10, 1, 100);
+                shape.x = clamp(shape.x + (Math.random() - 0.5) * amount, 0, width);
+                shape.y = clamp(shape.y + (Math.random() - 0.5) * amount, 0, height);
+                shape.radius = clamp(shape.radius + (Math.random() - 0.5) * 8, 2, 80);
             } else if (ART_STYLE === 'rect') {
-                shape.x = clamp(shape.x + (Math.random()-0.5)*amount, 0, width); 
-                shape.y = clamp(shape.y + (Math.random()-0.5)*amount, 0, height); 
-                shape.w = clamp(shape.w + (Math.random()-0.5)*10, 1, 100); 
-                shape.h = clamp(shape.h + (Math.random()-0.5)*10, 1, 100);
+                shape.x = clamp(shape.x + (Math.random() - 0.5) * amount, 0, width);
+                shape.y = clamp(shape.y + (Math.random() - 0.5) * amount, 0, height);
+                shape.w = clamp(shape.w + (Math.random() - 0.5) * 8, 2, 80);
+                shape.h = clamp(shape.h + (Math.random() - 0.5) * 8, 2, 80);
             } else if (ART_STYLE === 'line') {
-                shape.x1 = clamp(shape.x1 + (Math.random()-0.5)*amount, 0, width); 
-                shape.y1 = clamp(shape.y1 + (Math.random()-0.5)*amount, 0, height); 
-                shape.x2 = clamp(shape.x2 + (Math.random()-0.5)*amount, 0, width); 
-                shape.y2 = clamp(shape.y2 + (Math.random()-0.5)*amount, 0, height);
+                shape.x1 = clamp(shape.x1 + (Math.random() - 0.5) * amount, 0, width);
+                shape.y1 = clamp(shape.y1 + (Math.random() - 0.5) * amount, 0, height);
+                shape.x2 = clamp(shape.x2 + (Math.random() - 0.5) * amount, 0, width);
+                shape.y2 = clamp(shape.y2 + (Math.random() - 0.5) * amount, 0, height);
             }
         }
 
-        
         function calculateError() {
-            let currentData = aiCtx.getImageData(0, 0, width, height).data;
+            const curData = aiCtx.getImageData(0, 0, width, height).data;
             let total = 0;
-            
-            for (let i = 0; i < currentData.length; i += 16) { 
-                total += Math.abs(currentData[i] - targetData[i]) + 
-                         Math.abs(currentData[i+1] - targetData[i+1]) + 
-                         Math.abs(currentData[i+2] - targetData[i+2]);
+            // 16 adımlık örnekleme ile ultra hızlı optimizasyon
+            for (let i = 0; i < curData.length; i += 16) {
+                total += Math.abs(curData[i] - targetData[i]) +
+                         Math.abs(curData[i + 1] - targetData[i + 1]) +
+                         Math.abs(curData[i + 2] - targetData[i + 2]);
             }
             return total;
         }
 
-        
         function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-        
-        function updateStats() { 
-            document.getElementById('genStat').innerText = `Nesil: ${generation}`; 
-            
-            document.getElementById('errorStat').innerText = `Hata Skoru: ${Math.floor(bestError/1000)}k`; 
+
+        function updateStats() {
+            document.getElementById('genStat').innerText = generation.toLocaleString();
+            document.getElementById('errorStat').innerText = bestError === Infinity ? '---' : Math.floor(bestError / 1000) + 'k';
+            const fit = Math.max(0, (1 - (bestError / (initialError * 1.2))) * 100);
+            document.getElementById('fitnessStat').innerText = '%' + fit.toFixed(1);
         }
-        
-        function togglePause() { 
-            isRunning = !isRunning; 
-            const btn = document.getElementById('startBtn'); 
-            if (isRunning) { 
-                if(bestError === Infinity) { 
-                    drawDNA(currentDNA, aiCtx); 
-                    bestError = calculateError(); 
-                } 
-                evolve(); 
-                btn.innerText = "Evrimi Duraklat"; 
-                btn.style.background = "#ef4444"; 
-            } else { 
-                cancelAnimationFrame(animationId); 
-                btn.innerText = "Evrimi Sürdür"; 
-                btn.style.background = "#3b82f6"; 
-            } 
+
+        function togglePause() {
+            isRunning = !isRunning;
+            const btn = document.getElementById('startBtn');
+            if (isRunning) {
+                if (bestError === Infinity) {
+                    drawDNA(currentDNA, aiCtx);
+                    bestError = calculateError();
+                    initialError = bestError || 1;
+                }
+                evolve();
+                btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> Evrimi Duraklat`;
+                btn.className = "w-full py-3 bg-ai-rose hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2";
+            } else {
+                cancelAnimationFrame(animationId);
+                btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Evrimi Sürdür`;
+                btn.className = "w-full py-3 bg-ai-blue hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2";
+            }
+            lucide.createIcons();
         }
-        
-        function downloadArt() { 
-            const link = document.createElement('a'); 
-            link.download = `geomimic-sanat-${generation}.png`; 
-            link.href = document.getElementById('aiCanvas').toDataURL(); 
-            link.click(); 
+
+        function downloadArt() {
+            const link = document.createElement('a');
+            link.download = `geomimic-art-gen${generation}.png`;
+            link.href = document.getElementById('aiCanvas').toDataURL();
+            link.click();
         }
     </script>
 </body>
-
 </html>
